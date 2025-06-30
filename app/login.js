@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
 import { COLORS, icons, SHADOWS } from "../constants";
 import MedAppLogo from '../assets/MedAppLogo.png';
+import { Platform } from "react-native";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +21,9 @@ const Login = () => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Validation Error", "Please enter email and password.");
+      Platform.OS === "web"
+        ? window.alert("Please enter email and password.")
+        : Alert.alert("Validation Error", "Please enter email and password.");
       return;
     }
 

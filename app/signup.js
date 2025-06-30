@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
 import { COLORS, icons, SHADOWS } from "../constants";
 import MedAppLogo from '../assets/MedAppLogo.png';
+import { Platform } from "react-native";
 
 
 const SignUp = () => {
@@ -22,7 +23,9 @@ const SignUp = () => {
 
   const handleRegister = async () => {
     if (!userName || !email || !password) {
-      Alert.alert("Validation Error", "Please fill in all fields.");
+      Platform.OS === 'web'
+        ? window.alert("Please fill in all fields.")
+        : Alert.alert("Validation Error", "Please fill in all fields.");
       return;
     }
     const userDetails = { userName, email, password, token: "sample-token" };
