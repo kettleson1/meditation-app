@@ -1,0 +1,1 @@
+<Image source={require('../assets/meditation3.png')} />
