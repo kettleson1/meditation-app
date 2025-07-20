@@ -4,3 +4,5 @@ export {
   MeditationTopDisplay,
   // ...other exports
 };
+
+export { default as About } from "./about/About";
