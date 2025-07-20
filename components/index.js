@@ -1,8 +1,11 @@
 import MeditationTopDisplay from "./MeditationTopDisplay/MeditationTopDisplay";
+import { default as Tabs } from "./tabs/Tabs";
+import { default as About } from "./about/About";
+import { default as Footer } from "./footer/Footer";
 
 export {
   MeditationTopDisplay,
-  // ...other exports
+  Tabs,
+  About,
+  Footer,
 };
-
-export { default as About } from "./about/About";
