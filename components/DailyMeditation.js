@@ -7,14 +7,16 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
-import { COLORS, FONT, SIZES, SHADOWS } from "../constants/theme";
+import { COLORS, SHADOWS } from "../constants";
 import useFetch from "../hook/useFetch";
 
-const DailyMeditation = () => {
+const DailyMeditation = ({ meditations }) => {
   const router = useRouter();
-  const { data, isLoading, error } = useFetch("search", {
-    query: "daily meditation",
+
+  const { isLoading, error, bestMeditations } = useFetch("search", {
+    query: "",
     num_pages: "1",
   });
 
@@ -22,108 +24,81 @@ const DailyMeditation = () => {
     router.push(`/meditation-details/${id}`);
   };
 
+  const data = meditations || bestMeditations;
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Daily Meditation</Text>
-      </View>
-      <View style={styles.cardsContainer}>
-        {isLoading ? (
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        ) : error ? (
-          <Text>Something went wrong</Text>
-        ) : (
-          data?.map((meditation) => (
+      <Text style={styles.header}>Daily Meditation</Text>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      ) : error ? (
+        <Text>Something went wrong</Text>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {data?.slice(0, 3).map((item) => (
             <TouchableOpacity
-              key={`meditation-${meditation.id}`}
-              style={styles.cardContainer}
-              onPress={() => handleNavigate(meditation.id)}
+              key={`daily-${item.id}`}
+              style={styles.card}
+              onPress={() => handleNavigate(item.id)}
             >
-              <View style={styles.logoContainer}>
-                <Image
-                  source={{ uri: meditation.image }}
-                  resizeMode="cover"
-                  style={styles.logoImage}
-                />
-              </View>
-              <View style={styles.textContainer}>
-                <Text style={styles.meditationName} numberOfLines={1}>
-                  {meditation.title}
-                </Text>
-                <Text style={styles.meditationDetail}>
-                  {meditation.target}
-                </Text>
-                <Text style={styles.meditationDetail}>
-                  {meditation.duration}
+              <Image source={{ uri: item.image }} style={styles.image} />
+              <View style={styles.cardContent}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.detail}>{item.target}</Text>
+                <Text style={styles.detail}>{item.duration}</Text>
+                <Text style={styles.description}>
+                  {item.description ?? "No description available."}
                 </Text>
               </View>
             </TouchableOpacity>
-          ))
-        )}
-      </View>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
 
-export default DailyMeditation;
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop: SIZES.xLarge,
+    marginTop: 30,
+    paddingHorizontal: 20,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: SIZES.small,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
-  headerTitle: {
-    fontSize: SIZES.large,
-    fontFamily: FONT.medium,
-    color: COLORS.primary,
-  },
-  cardsContainer: {
-    marginTop: SIZES.medium,
-    gap: SIZES.small,
-  },
-  cardContainer: {
-    flex: 1,
-    justifyContent: "space-between",
-    padding: SIZES.medium,
-    borderRadius: SIZES.small,
-    backgroundColor: "#FFF",
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    marginBottom: 20,
+    overflow: "hidden",
     ...SHADOWS.medium,
-    shadowColor: COLORS.white,
   },
-  logoContainer: {
+  image: {
     width: "100%",
     height: 150,
-    backgroundColor: COLORS.white,
-    justifyContent: "center",
-    borderRadius: SIZES.medium,
-    alignItems: "center",
   },
-  logoImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: SIZES.medium,
+  cardContent: {
+    padding: 10,
   },
-  textContainer: {
-    flex: 1,
-    marginHorizontal: SIZES.medium,
-    marginTop: SIZES.medium,
-  },
-  meditationName: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.bold,
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
     color: COLORS.primary,
   },
-  meditationDetail: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.regular,
+  detail: {
+    marginTop: 4,
     color: COLORS.gray,
+    fontSize: 14,
+  },
+  description: {
+    marginTop: 8,
+    fontSize: 14,
+    color: COLORS.gray,
+    textAlign: "justify",
   },
 });
 
-
+export default DailyMeditation;

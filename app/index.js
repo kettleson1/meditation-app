@@ -1,149 +1,80 @@
-import { Stack, useGlobalSearchParams, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  View,
-  Text,
   SafeAreaView,
   ScrollView,
-  ActivityIndicator,
-  RefreshControl,
-  Share,
+  View,
+  TouchableOpacity,
   Alert,
-  StyleSheet,
 } from "react-native";
-import {
-  MeditationTopDisplay,
-  About,
-  Footer,
-  Tabs,
-} from "../../components";
-import ScreenHeaderBtn from '../../components/ScreenHeaderBtn';
-import { COLORS, icons, SIZES } from "../../constants";
-import useFetch from "../../hook/useFetch";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { COLORS, SIZES } from "../constants/theme";
+import ScreenHeaderBtn from "../components/ScreenHeaderBtn";
+import Welcome from "../components/Welcome";
+import PopularMeditation from "../components/PopularMeditation";
+import DailyMeditation from "../components/DailyMeditation";
+import { AntDesign } from "@expo/vector-icons"; // for FAB icon
+import { useRouter } from "expo-router";
 
-const tabs = ["About", "Instructions"];
+const Home = () => {
+  const [userDetails, setUserDetails] = useState(null);
+  const router = useRouter();
 
-const MeditationDetails = () => {
-  const params = useGlobalSearchParams();
-  const id = params.id;
-  const { data, isLoading, error, refetch } = useFetch("search", {
-    query: id,
-  });
-
-  const meditationItem = useFetch().getItemById(parseInt(id, 10));
-  const [activeTab, setActiveTab] = useState(tabs[0]);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    refetch();
-    setRefreshing(false);
+  useEffect(() => {
+    loadUserDetails();
   }, []);
 
-  const displayTabContent = () => {
-    if (activeTab === "About") {
-      return (
-        <About
-          title={meditationItem.title}
-          info={meditationItem.description ?? "No data provided"}
-        />
-      );
-    } else if (activeTab === "Instructions") {
-      return (
-        <View style={styles.specificsContainer}>
-          <Text style={styles.specificsTitle}>Instructions:</Text>
-          <View style={styles.pointsContainer}>
-            {(meditationItem.instructions ?? ["N/A"]).map((item, index) => (
-              <View style={styles.pointWrapper} key={index}>
-                <View style={styles.pointDot} />
-                <Text style={styles.pointText}>{item}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      );
-    }
-    return null;
-  };
-
-  const onShare = async () => {
+  const loadUserDetails = async () => {
     try {
-      const result = await Share.share({
-        message: `Check out this meditation: ${meditationItem.title} (${meditationItem.duration})`,
-      });
-      if (result.action === Share.dismissedAction) {
-        // Share dismissed
+      const user = await AsyncStorage.getItem("userDetails");
+      if (user) {
+        setUserDetails(JSON.parse(user));
+      } else {
+        // Redirect if not logged in
+        Alert.alert("Unauthorized", "Please log in first.");
+        router.replace("/login");
       }
     } catch (error) {
-      Alert.alert(error.message);
+      console.error("Error loading user data:", error);
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScreenHeaderBtn detailPage={true} handleShare={onShare} />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {isLoading ? (
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        ) : error ? (
-          <Text>Something went wrong</Text>
-        ) : !meditationItem || meditationItem.length === 0 ? (
-          <Text>No data available</Text>
-        ) : (
-          <View style={{ padding: SIZES.medium, paddingBottom: 100 }}>
-            <MeditationTopDisplay
-              meditationImage={meditationItem.image}
-              meditationTitle={meditationItem.title}
-              duration={meditationItem.duration}
-              target={meditationItem.target}
-            />
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-            {displayTabContent()}
-          </View>
-        )}
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
+      <ScreenHeaderBtn />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View
+          style={{
+            flex: 1,
+            padding: SIZES.medium,
+          }}
+          testID="screensDisplay"
+        >
+          <Welcome userDetails={userDetails} />
+          <PopularMeditation />
+          <DailyMeditation />
+        </View>
       </ScrollView>
-      <Footer data={meditationItem} />
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={{
+          position: "absolute",
+          bottom: 30,
+          right: 20,
+          backgroundColor: COLORS.primary,
+          borderRadius: 30,
+          width: 60,
+          height: 60,
+          justifyContent: "center",
+          alignItems: "center",
+          elevation: 5,
+        }}
+        onPress={() => Alert.alert("FAB Pressed", "Add new meditation")}
+      >
+        <AntDesign name="plus" size={30} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  specificsContainer: {
-    padding: SIZES.medium,
-  },
-  specificsTitle: {
-    fontSize: SIZES.large,
-    fontWeight: "bold",
-    marginBottom: SIZES.small,
-  },
-  pointsContainer: {
-    marginTop: SIZES.small,
-  },
-  pointWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: SIZES.small / 2,
-  },
-  pointDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.primary,
-    marginRight: SIZES.small,
-  },
-  pointText: {
-    fontSize: SIZES.medium,
-    color: COLORS.gray,
-  },
-});
-
-export default MeditationDetails;
+export default Home;

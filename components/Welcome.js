@@ -1,31 +1,51 @@
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { COLORS, FONT, SIZES } from "../constants/theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { COLORS, FONT, SIZES } from "../constants";
 
-const Welcome = ({ userDetails }) => {
+const Welcome = () => {
+  const [userName, setUserName] = useState("Friend");
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("userDetails");
+        if (userData) {
+          const parsed = JSON.parse(userData);
+          if (parsed.userName) {
+            setUserName(parsed.userName);
+          }
+        }
+      } catch (error) {
+        console.error("Error reading userDetails from AsyncStorage:", error);
+      }
+    };
+    fetchUserName();
+  }, []);
+
   return (
-    <View>
-      <View style={styles.container} testID="styles.container">
-        <Text style={styles.userName}>Hello {userDetails?.userName}!</Text>
-        <Text style={styles.welcomeMessage}>Find your perfect meditation</Text>
-      </View>
+    <View style={styles.container}>
+      <Text style={styles.greeting}>Hello {userName}</Text>
+      <Text style={styles.message}>Welcome back to your meditation app.</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    marginTop: SIZES.large,
+    marginHorizontal: SIZES.medium,
   },
-  userName: {
-    fontFamily: FONT.regular,
-    fontSize: SIZES.large,
-    color: COLORS.secondary,
-  },
-  welcomeMessage: {
-    fontFamily: FONT.bold,
+  greeting: {
     fontSize: SIZES.xLarge,
+    fontFamily: FONT.bold,
     color: COLORS.primary,
-    marginTop: 2,
+  },
+  message: {
+    fontSize: SIZES.medium,
+    fontFamily: FONT.regular,
+    color: COLORS.gray,
+    marginTop: 5,
   },
 });
 
