@@ -1,51 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { COLORS, FONT, SIZES } from "../constants";
+import { COLORS, FONT, SIZES } from "../constants/theme";
 
-const Welcome = () => {
-  const [userName, setUserName] = useState("Friend");
+const getThemeStyles = (isDark) => ({
+  userName: {
+    color: isDark ? COLORS.lightWhite : COLORS.darkText,
+  },
+  welcomeMessage: {
+    color: isDark ? COLORS.lightText : COLORS.darkText,
+  },
+});
 
-  useEffect(() => {
-    const fetchUserName = async () => {
-      try {
-        const userData = await AsyncStorage.getItem("userDetails");
-        if (userData) {
-          const parsed = JSON.parse(userData);
-          if (parsed.userName) {
-            setUserName(parsed.userName);
-          }
-        }
-      } catch (error) {
-        console.error("Error reading userDetails from AsyncStorage:", error);
-      }
-    };
-    fetchUserName();
-  }, []);
+const Welcome = ({ userDetails, isDarkMode }) => {
+  const themeStyles = getThemeStyles(isDarkMode);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Hello {userName}</Text>
-      <Text style={styles.message}>Welcome back to your meditation app.</Text>
+      <Text style={[styles.userName, themeStyles.userName]}>
+        Hello {userDetails?.userName || "Guest"}!
+      </Text>
+      <Text style={[styles.welcomeMessage, themeStyles.welcomeMessage]}>
+        Find your perfect meditation
+      </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: SIZES.large,
-    marginHorizontal: SIZES.medium,
+    width: "100%",
+    padding: 10,
   },
-  greeting: {
-    fontSize: SIZES.xLarge,
-    fontFamily: FONT.bold,
-    color: COLORS.primary,
-  },
-  message: {
-    fontSize: SIZES.medium,
+  userName: {
     fontFamily: FONT.regular,
-    color: COLORS.gray,
-    marginTop: 5,
+    fontSize: SIZES.large,
+  },
+  welcomeMessage: {
+    fontFamily: FONT.bold,
+    fontSize: SIZES.xLarge,
+    marginTop: 2,
   },
 });
 

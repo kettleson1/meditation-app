@@ -1,53 +1,46 @@
 import { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, View, ActivityIndicator } from "react-native";
+import { SafeAreaView, ScrollView, View } from "react-native";
+import { COLORS, SIZES } from "../constants/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import { COLORS, SIZES } from "../constants";
+import ScreenHeaderBtn from "../components/ScreenHeaderBtn";
 import Welcome from "../components/Welcome";
 import PopularMeditation from "../components/PopularMeditation";
 import DailyMeditation from "../components/DailyMeditation";
-import DailyQuote from "../components/DailyQuote";
-import ScreenHeaderBtn from "../components/ScreenHeaderBtn";
-import CountryList from '../components/CountryList';
-
+import DailyQuote from "../components/Quote";
+import CountryList from "../components/CountryList";
+import { useTheme } from "../context/ThemeProvider";
 
 const Home = () => {
   const [userDetails, setUserDetails] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   useEffect(() => {
+    const loadUserDetails = async () => {
+      const user = await AsyncStorage.getItem("userDetails");
+      if (user) {
+        setUserDetails(JSON.parse(user));
+      }
+    };
     loadUserDetails();
   }, []);
 
-  const loadUserDetails = async () => {
-    try {
-      const user = await AsyncStorage.getItem("userDetails");
-      setUserDetails(user ? JSON.parse(user) : null);
-    } catch (error) {
-      console.error("Error loading user details:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightWhite, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.lightWhite,
+      }}
+    >
+      <ScreenHeaderBtn />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ padding: SIZES.medium }}>
-          <ScreenHeaderBtn />
-          <Welcome userDetails={userDetails} />
-          <DailyQuote />
-          <CountryList />
-          <PopularMeditation />
-          <DailyMeditation />
+        <View style={{ flex: 1, padding: SIZES.medium }}>
+          <Welcome userDetails={userDetails} isDarkMode={isDarkMode} />
+          <DailyQuote isDarkMode={isDarkMode} />
+          <CountryList isDarkMode={isDarkMode} />
+          <PopularMeditation isDarkMode={isDarkMode} />
+          <DailyMeditation isDarkMode={isDarkMode} />
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -1,30 +1,40 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Stack } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ActivityIndicator, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts } from "expo-font";
+import { ThemeProvider } from "../context/ThemeProvider";
 
-export default function Layout() {
-  const [initialRoute, setInitialRoute] = useState(null);
+// Optional: You can define this if your router uses `unstable_settings`
+export const unstable_settings = {
+  initialRouteName: "login",
+};
+
+const Layout = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [fontsLoaded] = useFonts({
+    DMBold: require("../assets/fonts/DMSans-Bold.ttf"),
+    DMMedium: require("../assets/fonts/DMSans-Medium.ttf"),
+    DMRegular: require("../assets/fonts/DMSans-Regular.ttf"),
+  });
 
   useEffect(() => {
-    const checkLogin = async () => {
+    const checkLoginState = async () => {
       try {
         const user = await AsyncStorage.getItem("userDetails");
-        if (user) {
-          setInitialRoute("/home"); // Logged in
-        } else {
-          setInitialRoute("/login"); // Not logged in
-        }
-      } catch (err) {
-        console.error("Error checking login:", err);
-        setInitialRoute("/login");
+        if (user) setIsLoggedIn(true);
+      } catch (error) {
+        console.error("Error checking login state:", error);
       }
+      setIsLoading(false);
     };
 
-    checkLogin();
+    checkLoginState();
   }, []);
 
-  if (!initialRoute) {
+  if (isLoading || !fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
@@ -33,9 +43,17 @@ export default function Layout() {
   }
 
   return (
-    <Stack
-      screenOptions={{ headerShown: false }}
-      initialRouteName={initialRoute}
-    />
+    <ThemeProvider>
+      <Stack
+        initialRouteName={isLoggedIn ? "home" : "login"}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="home" />
+      </Stack>
+    </ThemeProvider>
   );
-}
+};
+
+export default Layout;
