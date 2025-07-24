@@ -8,6 +8,8 @@ import PopularMeditation from "../components/PopularMeditation";
 import DailyMeditation from "../components/DailyMeditation";
 import DailyQuote from "../components/DailyQuote";
 import ScreenHeaderBtn from "../components/ScreenHeaderBtn";
+import CountryList from '../components/CountryList';
+
 
 const Home = () => {
   const [userDetails, setUserDetails] = useState(null);
@@ -43,6 +45,7 @@ const Home = () => {
           <ScreenHeaderBtn />
           <Welcome userDetails={userDetails} />
           <DailyQuote />
+          <CountryList />
           <PopularMeditation />
           <DailyMeditation />
         </View>

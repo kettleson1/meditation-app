@@ -1,24 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 
 const DailyQuote = () => {
-  const [quote, setQuote] = useState("");
-  const [author, setAuthor] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [quote, setQuote] = useState('');
+  const [author, setAuthor] = useState('');
+  const [loading, setLoading] = useState(true); // Start in loading state
+
+  console.log("✅ DailyQuote component rendered");
 
   const fetchQuote = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://dummyjson.com/quotes/random");
+      const response = await fetch('https://dummyjson.com/quotes/random');
       if (response.ok) {
         const data = await response.json();
+        console.log("📦 Fetched Quote:", data);
         setQuote(data.quote);
         setAuthor(data.author);
       } else {
-        console.error("Error fetching quote:", response.status);
+        console.error("❌ Error fetching quote: HTTP", response.status);
       }
     } catch (error) {
-      console.error("Error fetching quote:", error);
+      console.error("❌ Error fetching quote:", error);
     } finally {
       setLoading(false);
     }
@@ -35,36 +38,36 @@ const DailyQuote = () => {
       ) : (
         <>
           <Text style={styles.quoteText}>"{quote}"</Text>
-          <Text style={styles.authorText}>- {author}</Text>
+          <Text style={styles.authorText}>— {author}</Text>
         </>
       )}
     </View>
   );
 };
 
+export default DailyQuote;
+
 const styles = StyleSheet.create({
   container: {
-    margin: 16,
-    backgroundColor: "#f5f5f5",
-    padding: 16,
-    borderRadius: 8,
-    borderColor: "#ccc",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
-    alignItems: "center",
+    borderColor: '#ccc',
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginVertical: 10,
   },
   quoteText: {
-    fontSize: 16,
-    fontStyle: "italic",
-    textAlign: "center",
-    marginBottom: 8,
-    color: "#333",
+    fontSize: 18,
+    fontStyle: 'italic',
+    marginBottom: 5,
+    textAlign: 'center',
   },
   authorText: {
     fontSize: 14,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#555",
+    fontWeight: '600',
+    color: '#666',
+    textAlign: 'center',
   },
 });
-
-export default DailyQuote;
