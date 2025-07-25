@@ -3,69 +3,105 @@ import { useRouter } from "expo-router";
 import {
   View,
   Text,
-  FlatList,
   TouchableOpacity,
   Image,
   StyleSheet,
+  ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { COLORS, SHADOWS } from "../constants";
+import useFetch from "../hook/useFetch";
+import { useTheme } from "../context/ThemeProvider";
 
-const popularMeditations = [
-  {
-    id: "1",
-    title: "Mindful Breathing",
-    duration: "10 mins",
-    image: require("../assets/meditation1.png"),
-    target: "Calm & Relaxation",
-  },
-  {
-    id: "2",
-    title: "Stress Relief",
-    duration: "15 mins",
-    image: require("../assets/meditation2.png"),
-    target: "Stress Reduction",
-  },
-  {
-    id: "3",
-    title: "Morning Focus",
-    duration: "8 mins",
-    image: require("../assets/meditation3.png"),
-    target: "Focus & Energy",
-  },
-];
-
-const PopularMeditation = () => {
+const DailyMeditation = ({ meditations }) => {
   const router = useRouter();
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
+
+  const { isLoading, error, bestMeditations } = useFetch("search", {
+    query: "",
+    num_pages: "1",
+  });
 
   const handleNavigate = (id) => {
     router.push(`/meditation-details/${id}`);
   };
 
-  const renderMeditationCard = ({ item }) => (
-    <TouchableOpacity
-      key={`popular-${item.id}`}
-      style={styles.card}
-      onPress={() => handleNavigate(item.id)}
-    >
-      <Image source={item.image} style={styles.image} />
-      <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.detail}>{item.target}</Text>
-        <Text style={styles.detail}>{item.duration}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const data = meditations || bestMeditations;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Popular Meditations</Text>
-      <FlatList
-        data={popularMeditations}
-        horizontal
-        keyExtractor={(item) => `popular-${item.id}`}
-        renderItem={renderMeditationCard}
-        showsHorizontalScrollIndicator={false}
-      />
+    <View style={[styles.container]}>
+      <Text
+        style={[
+          styles.header,
+          { color: isDarkMode ? COLORS.lightWhite : COLORS.darkText },
+        ]}
+      >
+        Daily Meditation
+      </Text>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      ) : error ? (
+        <Text
+          style={{ color: isDarkMode ? COLORS.lightWhite : COLORS.darkText }}
+        >
+          Something went wrong
+        </Text>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {data?.slice(0, 3).map((item) => (
+            <TouchableOpacity
+              key={`daily-${item.id}`}
+              style={[
+                styles.card,
+                {
+                  backgroundColor: isDarkMode
+                    ? COLORS.darkBackground
+                    : COLORS.white,
+                },
+              ]}
+              onPress={() => handleNavigate(item.id)}
+            >
+              <Image source={{ uri: item.image }} style={styles.image} />
+              <View style={styles.cardContent}>
+                <Text
+                  style={[
+                    styles.title,
+                    { color: isDarkMode ? COLORS.lightText : COLORS.primary },
+                  ]}
+                >
+                  {item.title}
+                </Text>
+                <Text
+                  style={[
+                    styles.detail,
+                    { color: isDarkMode ? COLORS.lightText : COLORS.gray },
+                  ]}
+                >
+                  {item.target}
+                </Text>
+                <Text
+                  style={[
+                    styles.detail,
+                    { color: isDarkMode ? COLORS.lightText : COLORS.gray },
+                  ]}
+                >
+                  {item.duration}
+                </Text>
+                <Text
+                  style={[
+                    styles.description,
+                    { color: isDarkMode ? COLORS.lightText : COLORS.gray },
+                  ]}
+                >
+                  {item.description ?? "No description available."}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -81,17 +117,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 10,
-    marginRight: 15,
-    width: 160,
+    marginBottom: 20,
+    overflow: "hidden",
     ...SHADOWS.medium,
   },
   image: {
     width: "100%",
-    height: 100,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    height: 150,
   },
   cardContent: {
     padding: 10,
@@ -102,9 +135,13 @@ const styles = StyleSheet.create({
   },
   detail: {
     marginTop: 4,
-    color: COLORS.gray,
     fontSize: 14,
+  },
+  description: {
+    marginTop: 8,
+    fontSize: 14,
+    textAlign: "justify",
   },
 });
 
-export default PopularMeditation;
+export default DailyMeditation;

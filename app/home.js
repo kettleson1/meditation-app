@@ -6,7 +6,7 @@ import ScreenHeaderBtn from "../components/ScreenHeaderBtn";
 import Welcome from "../components/Welcome";
 import PopularMeditation from "../components/PopularMeditation";
 import DailyMeditation from "../components/DailyMeditation";
-import DailyQuote from "../components/Quote";
+import DailyQuote from "../components/DailyQuote";
 import CountryList from "../components/CountryList";
 import { useTheme } from "../context/ThemeProvider";
 

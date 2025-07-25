@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeProvider';
+import { COLORS } from '../constants/theme';
 
 const DailyQuote = () => {
   const [quote, setQuote] = useState('');
   const [author, setAuthor] = useState('');
-  const [loading, setLoading] = useState(true); // Start in loading state
+  const [loading, setLoading] = useState(true);
 
-  console.log("✅ DailyQuote component rendered");
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
 
   const fetchQuote = async () => {
     setLoading(true);
@@ -14,7 +17,6 @@ const DailyQuote = () => {
       const response = await fetch('https://dummyjson.com/quotes/random');
       if (response.ok) {
         const data = await response.json();
-        console.log("📦 Fetched Quote:", data);
         setQuote(data.quote);
         setAuthor(data.author);
       } else {
@@ -32,13 +34,20 @@ const DailyQuote = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {
+      borderColor: isDarkMode ? COLORS.lightWhite : '#ccc',
+      backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.lightWhite,
+    }]}>
       {loading ? (
-        <ActivityIndicator size="small" color="#0000ff" />
+        <ActivityIndicator size="small" color={isDarkMode ? COLORS.lightWhite : '#0000ff'} />
       ) : (
         <>
-          <Text style={styles.quoteText}>"{quote}"</Text>
-          <Text style={styles.authorText}>— {author}</Text>
+          <Text style={[styles.quoteText, { color: isDarkMode ? COLORS.lightText : COLORS.darkText }]}>
+            "{quote}"
+          </Text>
+          <Text style={[styles.authorText, { color: isDarkMode ? COLORS.gray2 : '#666' }]}>
+            — {author}
+          </Text>
         </>
       )}
     </View>
@@ -52,7 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 10,
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -67,7 +75,6 @@ const styles = StyleSheet.create({
   authorText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
     textAlign: 'center',
   },
 });
