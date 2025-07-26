@@ -1,20 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome } from "@expo/vector-icons";
-import { COLORS, SIZES, SHADOWS } from "../constants/theme";
-import { useTheme } from "../context/ThemeProvider";
-import ScreenHeaderBtn from "../components/ScreenHeaderBtn";
+import { COLORS, SHADOWS, SIZES } from "../../constants/theme";
+import { useTheme } from "../../context/ThemeProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Settings = () => {
-  const [userDetails, setUserDetails] = useState(null);
+const SettingsMenu = () => {
   const router = useRouter();
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
@@ -22,39 +20,34 @@ const Settings = () => {
   const settingsOptions = [
     {
       id: "1",
-      name: "Settings",
-      icon: "cog",
-      path: "/settings/ThemeChange",
+      name: "User Information",
+      icon: "user",
+      path: "/settings/UserInfo",
     },
     {
       id: "2",
-      name: "My Favorites",
-      icon: "heart",
-      path: "/favorites",
+      name: "Account Settings",
+      icon: "cog",
+      path: "/settings/AccountSettings",
     },
     {
       id: "3",
-      name: "Daily Reminders",
+      name: "Notifications",
       icon: "bell",
-      path: "/settings/DailyReminders",
+      path: "/settings/Notifications",
+    },
+    {
+      id: "4",
+      name: "About",
+      icon: "info-circle",
+      path: "/settings/About",
     },
   ];
-
-  const loadUserDetails = async () => {
-    const user = await AsyncStorage.getItem("userDetails");
-    if (user) {
-      setUserDetails(JSON.parse(user));
-    }
-  };
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("userDetails");
     router.push("/login");
   };
-
-  useEffect(() => {
-    loadUserDetails();
-  }, []);
 
   return (
     <SafeAreaView
@@ -63,22 +56,8 @@ const Settings = () => {
         backgroundColor: isDarkMode ? COLORS.darkBackground : COLORS.lightWhite,
       }}
     >
-      <ScreenHeaderBtn />
       <ScrollView>
         <View style={{ padding: SIZES.medium }}>
-          {userDetails?.userName && (
-            <Text
-              style={{
-                fontSize: SIZES.large,
-                fontFamily: "DMBold",
-                marginBottom: SIZES.medium,
-                color: isDarkMode ? COLORS.lightText : COLORS.darkText,
-              }}
-            >
-              Hello, {userDetails.userName}
-            </Text>
-          )}
-
           {settingsOptions.map((item) => (
             <View
               key={item.id}
@@ -116,7 +95,7 @@ const Settings = () => {
             </View>
           ))}
 
-          {/* Logout */}
+          {/* Logout Button */}
           <View
             style={{
               backgroundColor: isDarkMode ? "#111" : "#eee",
@@ -152,4 +131,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default SettingsMenu;
