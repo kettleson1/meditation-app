@@ -30,7 +30,7 @@ const Settings = () => {
       id: "2",
       name: "My Favorites",
       icon: "heart",
-      path: "/favorites",
+      path: "/settings/Favourites",
     },
     {
       id: "3",

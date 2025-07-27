@@ -42,6 +42,12 @@ const SettingsMenu = () => {
       icon: "info-circle",
       path: "/settings/About",
     },
+    {
+      id: "5",
+      name: "Favorites",
+      icon: "heart",
+      path: "/settings/Favourites",
+    },
   ];
 
   const handleLogout = async () => {
