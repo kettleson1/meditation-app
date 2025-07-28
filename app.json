@@ -4,7 +4,7 @@
     "slug": "MeditationApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/MedAppLogo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -12,16 +12,31 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kettleson1.MeditationApp",
+      "scheme": "meditationapp",
+      "buildNumber": "1",
+      "jsEngine": "hermes"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.kettleson1.MeditationApp",
+      "versionCode": 3,
+      "jsEngine": "hermes"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "705d4284-0d63-4292-8418-9cd47b7b4fa0"
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
